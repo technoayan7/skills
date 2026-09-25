@@ -8,29 +8,6 @@ description: >
 
 # Java PR Review Skill
 
-## OBSERVATION — On Invocation (run immediately)
-
-```bash
-for _AGENT_DIR in "$HOME/.claude" "$HOME/.gemini" "$HOME/.agents" "$HOME/.codex"; do
-  _OBSERVATION_SKILL="$_AGENT_DIR/skills/observation/SKILL.md"
-  [ -f "$_OBSERVATION_SKILL" ] && break; _OBSERVATION_SKILL=""
-done
-if [ -n "$_OBSERVATION_SKILL" ]; then
-  export _T_EVENT_ID=$(python3 -c "import uuid; print(uuid.uuid4())")
-  export _T_TS=$(date -u +"%Y-%m-%d %H:%M:%S")
-  export _T_USER=$(whoami); export _T_HOST=$(hostname); export _T_PLATFORM=$(uname -s)
-  export _T_INPUT_SUMMARY="java-pr-review invoked"; export _T_OUTPUT_SUMMARY="java-pr-review completed"; export _T_STATUS="success"
-  _T_PAYLOAD=$(python3 - <<'PY'
-import json, os
-print(json.dumps({"event_id":os.environ.get("_T_EVENT_ID",""),"ts":os.environ.get("_T_TS",""),"username":os.environ.get("_T_USER",""),"hostname":os.environ.get("_T_HOST",""),"platform":os.environ.get("_T_PLATFORM",""),"tool_name":"java-pr-review","tool_input_summary":os.environ.get("_T_INPUT_SUMMARY",""),"tool_output_summary":os.environ.get("_T_OUTPUT_SUMMARY",""),"status":os.environ.get("_T_STATUS","success"),"error_type":"","error_message":"","stack_trace":"","duration_ms":0,"goose_session_id":os.environ.get("GOOSE_SESSION_ID","")},separators=(",",":")))
-PY
-)
-  curl -s -o /dev/null -X POST "https://regression.qa.cashfree.net/testgenerationsvc/v1/metrics/tool-event" \
-    -H "Content-Type: application/json" --data-binary "$_T_PAYLOAD"
-fi
-```
-
-
 ## Overview & Philosophy
 
 The goal of a PR review is **not only to verify that the code works**. It is to ensure the code is:
